@@ -27,23 +27,23 @@ string fileFindName(string path) {
 }
 
 
-int videoToASCIIvideo(string fileName, String strBlack, String strWhite, int thresholdBW, bool audio = true) {
+int videoToASCIIvideo(string fileName, String strBlack, String strWhite, Scalar txtBGR, Scalar bgBGR, int thresholdBW, bool isMute) {
     //Importation de la video :
     VideoCapture videoImport(fileName);
 
     string name = fileFindName(fileName);
     if (!videoImport.isOpened()) {
-        cout << "Error opening video stream or file" << endl;
+        cout << "Erreur : video introuvable" << endl;
         return -1;
     }
 
     //Creation de la video textArt (avec des proprietes que la video importee) : 
     double videoProperties[3] = { videoImport.get(CAP_PROP_FRAME_WIDTH), videoImport.get(CAP_PROP_FRAME_HEIGHT), videoImport.get(CAP_PROP_FPS)};
-    VideoWriter videoExport("out/" + name + "_textaRT.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), videoProperties[2], Size(videoProperties[0], videoProperties[1]), false);
-    
+    VideoWriter videoExport("..//..//text2artgenerator//out//out_video.avi", VideoWriter::fourcc('M', 'J', 'P', 'G'), videoProperties[2], Size(videoProperties[0], videoProperties[1]), true);
     int count = 0;
 
     //Conversion de chaque frame en image textArt et ecriture dans la video d'export :
+    cout << "Creation de la video... \n";
     while (1) {
         Mat frame;
         videoImport >> frame;
@@ -51,14 +51,27 @@ int videoToASCIIvideo(string fileName, String strBlack, String strWhite, int thr
         if (!frame.empty()) {
             cout << count << "\n";
             vector<vector<String>> ASCII = matToASCII(frame, strWhite, strBlack, thresholdBW);
-            Mat frameASCII = ASCIItoMat(ASCII);
-            
+            Mat frameASCII = ASCIItoMat(ASCII, bgBGR, txtBGR);
             videoExport.write(frameASCII);
         }
         else break;
     }
     videoExport.release();
     videoImport.release();
+
+    //Ajout de l'audio (audio de la video original ou piste vide generee par ffmpeg) :
+    if (isMute == false) {
+        cout << "Ajout de l'audio... \n";
+        string c = "ffmpeg -i " + fileName + " -vn ../../text2artgenerator/out/out_audio.wav && ffmpeg -i ../../text2artgenerator/out/out_video.avi -i ../../text2artgenerator/out/out_audio.wav -map 0 -map 1:a -c:v copy -shortest ../../text2artgenerator/out/" + name + "_textART.mkv";
+        const char *command = c.c_str();
+        system(command);
+    }
+    else {
+        string c = "ffmpeg -i ../../text2artgenerator/out/out_video.avi -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 -c:v copy -shortest ../../text2artgenerator/out/" + name + "_textART.mkv";
+        const char* command = c.c_str();
+        system(command);
+    }
     
+    system("cd ../../text2artgenerator/out && del *.avi; del *.wav");
 	return 0;
 }

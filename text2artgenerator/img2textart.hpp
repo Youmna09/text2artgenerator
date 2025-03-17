@@ -36,8 +36,11 @@ vector<vector<String>> matToASCII(Mat img, String strWhite, String strBlack, int
 /// Conversion d'un tableau 2D contenant des caracteres en Matrice
 /// </summary>
 /// <param name="ASCII"> : tableau dynamique 2D contenant des caracteres</param>
+/// <param name="txtBGR"> : Tableau de 3 entiers (Blue, Green, Red) utilise pour determiner la couleur des caracteres</param>
+/// <param name="bgBGR"> : Tableau de 3 entiers (Blue, Green, Red) utilise pour determiner la couleur du fond</param>
+/// <param name="strBlack"> : Caractere utilise pour representer les zones sombres dans le tableau</param>
 /// <returns>matASCII : Matrice representant le tableau 2D</returns>
-Mat ASCIItoMat(vector<vector<String>> ASCII);
+Mat ASCIItoMat(vector<vector<String>> ASCII, Scalar txtBGR, Scalar bgBGR);
 
 #endif // !IMG2TEXTART
 

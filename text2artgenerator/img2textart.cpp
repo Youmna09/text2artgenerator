@@ -44,20 +44,24 @@ vector<vector<String>> matToASCII(Mat img, String strWhite, String strBlack, int
 }
 
 
-Mat ASCIItoMat(vector<vector<String>> ASCII) {
+Mat ASCIItoMat(vector<vector<String>> ASCII, Scalar bgBGR, Scalar txtBGR) {
 	//Creation de la matrice "toile" representant le tableau :
 	int width = ASCII[0].size();
 	int height = ASCII.size();
-	Mat matASCII = Mat::zeros(Size(width*10, height  * 10), CV_8SC1);
+	Mat matASCII = Mat::zeros(Size(width*10, height  * 10), CV_8UC3);
 	
 	//Creation de la matrice "tuile" : 
-	Mat tile = Mat::zeros(Size(10, 10), CV_8SC1);
+	Mat tile = Mat::zeros(Size(10, 10), CV_8UC3);
+
+	Scalar txtColor;
+	Scalar bgColor;
 
 	//Collage des matrices "tuile" representant chaque lettre du tableau 2D dans la "toile" :
 	for (int y = 0; y < matASCII.rows; y+=10) {
 		for (int x = 0; x < matASCII.cols; x+=10) {
-			tile.setTo(InputArray(255));
-			putText(tile, ASCII[y/10][x/10], Point(1, 8), FONT_HERSHEY_COMPLEX, 0.4, Scalar(0));
+			//Choix des couleurs de police et de fond :
+			tile.setTo(bgBGR);
+			putText(tile, ASCII[y/10][x/10], Point(1, 8), FONT_HERSHEY_COMPLEX, 0.4, txtBGR);
 			matCopy(matASCII, tile, x, y);
 		}
 	}
