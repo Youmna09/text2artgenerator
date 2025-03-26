@@ -144,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="img2textart.hpp" />
+    <ClInclude Include="UI.hpp" />
     <ClInclude Include="video2ascii.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
