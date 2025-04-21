@@ -15,6 +15,7 @@
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_PNG_Image.H>
 #include <Fl/Fl_ask.H>
+#include <Fl/Fl_Group.H>
 #include "video2ascii.hpp"
 
 using namespace cv;
@@ -123,18 +124,18 @@ void display(Fl_Widget*, void *box) {
 	bx->redraw();
 }
 
-void exportVideo(Fl_Widget*) {
+void exportVideo(Fl_Widget*, void* group) {
 	//Verification de la presence du fichier d'entree et de sortie :
 	if (strData["InputFile"] == "" || strData["ExportFile"] == "") fl_alert("Erreur : le fichier importe ou a exporter n'existe pas");
-	
+
 	else {
 		//Verification de la presence de doublon entre un fichier existant et le fichier de sortie :
 		int exportFile;
-		string c = "cd " + strData["ExportFile"].substr(0, strData["ExportFile"].size() - fileFindName(strData["ExportFile"]).size()-1);
+		string c = "cd " + strData["ExportFile"].substr(0, strData["ExportFile"].size() - fileFindName(strData["ExportFile"]).size() - 1);
 		c += " && dir " + fileFindName(strData["ExportFile"]);
 		if (system(c.c_str()) == 0) {
 			string m = fileFindName(strData["ExportFile"]) + " existe deja. Voulez-vous le remplacer ?";
-			
+
 			//Supression du fichier existant (si demandee par l'utilisateur) :
 			if (fl_choice(m.c_str(), "OK", "Annuler", 0) == 0) {
 				c += "&& del " + fileFindName(strData["ExportFile"]);
@@ -151,7 +152,26 @@ void exportVideo(Fl_Widget*) {
 			int choice = fl_choice("L'exportation va bientot commencer. Vous pouvez suivre la progression via la console d'execution.", "OK", "Annuler", 0);
 			if (choice != 0) exportFile = 2; //Sinon : exportation annulee
 			else exportFile = videoToASCIIvideo(strData["InputFile"], strData["ExportFile"], strData["StrBlack"], strData["StrWhite"], doubleData["TextBGR"], doubleData["bgBGR"], doubleData["Threshold"][0], doubleData["WithAudio"][0]);
-			
+
+			//Reecriture des valeurs dans le champs de texte et les boites de couleurs
+			// (pour eviter les bugs d'affichage apres l'exportation) :
+			Fl_Group* grp = (Fl_Group*)group;
+			Fl_Output* inPath = (Fl_Output*)grp->child(0);
+			Fl_Output* outPath = (Fl_Output*)grp->child(1);
+			Fl_Box* txtColor = (Fl_Box*)grp->child(2);
+			Fl_Box* bgColor = (Fl_Box*)grp->child(3);
+
+			Fl_Color txtRGB = DEFAULT_COLOR;
+			Fl::set_color(txtRGB,(uchar)doubleData["TextBGR"][2], (uchar)doubleData["TextBGR"][1], (uchar)doubleData["TextBGR"][0]);
+
+			inPath->static_value(strData["InputFile"].c_str());
+			outPath->static_value(strData["ExportFile"].c_str());
+			txtColor->color(txtRGB);
+
+			inPath->redraw();
+			outPath->redraw();
+			txtColor->redraw();
+
 			//Affichage de message en fonction de la reussite ou non de l'exportation :
 			if (exportFile == 0) fl_alert("Exportation reussie");
 			if (exportFile == -1) fl_alert("Erreur : video source introuvable");
@@ -161,6 +181,7 @@ void exportVideo(Fl_Widget*) {
 }
 
 void UIWindow(Fl_Window* window) {
+	
 	//Champ de texte affichant le chemin du fichier d'entree et bouton pour selectionner un fichier :
 	Fl_Output* openFilePath = new Fl_Output(10, 27, 420, 20);
 	Fl_Button* openButton = new Fl_Button(440, 20, 50, 30, "Ouvrir");
@@ -214,9 +235,15 @@ void UIWindow(Fl_Window* window) {
 	Fl_Button* displayButton = new Fl_Button(10, 350, 120, 30, "Charger l'apercu");
 	displayButton->callback(display, preview);
 
+
+	Fl_Group* dataGroup = new Fl_Group(0, 0, 500, 400, "");
+	dataGroup->add(openFilePath);
+	dataGroup->add(saveFilePath);
+	dataGroup->add(textColorDisplay);
+
 	//Bouton pour lancer la conversion et l'exportation du fichier d'entree en video textART dans le fichier de sortie :
 	Fl_Button* generateButton = new Fl_Button(140, 350, 70, 30, "Exporter");
-	generateButton->callback(exportVideo);
+	generateButton->callback(exportVideo, dataGroup);
 
 	window->end();
 }

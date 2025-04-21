@@ -76,7 +76,8 @@ void display(Fl_Widget*, void* box);
 /// et de la presence ou non de l'audio original et l'exporte dans le fichier de sortie
 /// </summary>
 /// <param name=""> : Fl_Widget* reference a l'element dans la fenetre qui declenchera l'appel de fonction</param>
-void exportVideo(Fl_Widget*);
+/// <param name="group"> : void* reference au groupe d'elements utilises dans la fonction</param>
+void exportVideo(Fl_Widget*, void* group);
 
 /// <summary>
 /// Creer une fenetre offrant une interface pour generer des video textART
