@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <FL/x.H>
 #include "UI.hpp"
+#include <FL/Fl_Window.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Check_Button.H>
@@ -28,6 +30,8 @@ map<string, Scalar> doubleData = { {"TextBGR", Scalar(0,0,0)}, {"bgBGR", Scalar(
 
 #define DEFAULT_COLOR (FL_FREE_COLOR)
 #define OUTPUT_FILE (".mkv")
+#define IDI_ICON1 101
+
 
 //Fonctions callback :
 void loadFile(Fl_Widget*, void* txtfield) {
@@ -181,7 +185,9 @@ void exportVideo(Fl_Widget*, void* group) {
 }
 
 void UIWindow(Fl_Window* window) {
-	
+	//Ajout d'une icone sur la fenetre : 
+	window->icon((char*)LoadIcon(fl_display, MAKEINTRESOURCE(IDI_ICON1)));
+
 	//Champ de texte affichant le chemin du fichier d'entree et bouton pour selectionner un fichier :
 	Fl_Output* openFilePath = new Fl_Output(10, 27, 420, 20);
 	Fl_Button* openButton = new Fl_Button(440, 20, 50, 30, "Ouvrir");
@@ -235,7 +241,7 @@ void UIWindow(Fl_Window* window) {
 	Fl_Button* displayButton = new Fl_Button(10, 350, 120, 30, "Charger l'apercu");
 	displayButton->callback(display, preview);
 
-
+	//Regroupement de certaines donnees dans un groupe : 
 	Fl_Group* dataGroup = new Fl_Group(0, 0, 500, 400, "");
 	dataGroup->add(openFilePath);
 	dataGroup->add(saveFilePath);
